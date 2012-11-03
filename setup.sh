@@ -24,13 +24,14 @@ while [ "$paths" = "" ] ; do
     read -p "Enter the paths of the files and/or directories you wish to \
 back up in one line, separated by spaces: " paths
 done
-echo 'tar xzf /tmp/$$shaeckup_backup.tar.gz' $paths >>$script
+echo 'tar czf /tmp/$$shaeckup_backup.tar.gz' $paths >>$script
 
 # Query for encryption passphrase and path
-while [ "$passphrase" = "" ] ; do
+while [ "$passphrase" = "" ] || [ ${#passphrase} -lt 20 ] ; do
     read -p "Enter the encryption passphrase. This phrase will be stored in a file \
 which can only be read by the user $USER. Make sure you back up the file in a \
-safe location to be able to decrypt the backups later: " passphrase
+safe location to be able to decrypt the backups later. The passphrase must be \
+at least 20 characters long." passphrase
 done
 while [ "$passphrase_path" = "" ] ; do
     read -p "Enter the path where the passphrase file is stored: " passphrase_path
@@ -58,7 +59,7 @@ done
 
 # Insert transmission part into backup script
 echo "scp -P $port" '/tmp/$$shaeckup_backup.tar.gz.aes' \
-$username@$host:$target_dir/`date --rfc-3339=seconds`backup.tar.gz.aes >>$script
+$username@$host:$target_dir/backup.tar.gz.aes >>$script
 
 # Query backup script storage location and move it there
 while [ "$script_path" = "" ] ; do
